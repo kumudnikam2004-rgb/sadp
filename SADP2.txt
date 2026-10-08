@@ -1,0 +1,1721 @@
+ASSIGNMENT 1
+PizzaStore
+
+abstract class Pizza {
+    String name;
+    void prepare() { System.out.println("Preparing " + name); }
+    void bake() { System.out.println("Baking " + name); }
+    void cut() { System.out.println("Cutting " + name); }
+    void box() { System.out.println("Boxing " + name); }
+}
+
+class NYStyleCheesePizza extends Pizza {
+    public NYStyleCheesePizza() { name = "NY Style Cheese Pizza"; }
+}
+
+class ChicagoStyleCheesePizza extends Pizza {
+    public ChicagoStyleCheesePizza() { name = "Chicago Style Cheese Pizza"; }
+}
+
+abstract class PizzaStore {
+    // The Factory Method
+    protected abstract Pizza createPizza(String type);
+
+    public Pizza orderPizza(String type) {
+        Pizza pizza = createPizza(type); // Uses the factory method
+        pizza.prepare();
+        pizza.bake();
+        pizza.cut();
+        pizza.box();
+        return pizza;
+    }
+}
+
+class NYPizzaStore extends PizzaStore {
+    protected Pizza createPizza(String type) {
+        return new NYStyleCheesePizza(); 
+    }
+}
+
+class ChicagoPizzaStore extends PizzaStore {
+    protected Pizza createPizza(String type) {
+        return new ChicagoStyleCheesePizza(); 
+    }
+}
+
+public class PizzaMain {
+    public static void main(String[] args) {
+        PizzaStore nyStore = new NYPizzaStore();
+        nyStore.orderPizza("cheese");
+        
+        System.out.println("---");
+        
+        PizzaStore chicagoStore = new ChicagoPizzaStore();
+        chicagoStore.orderPizza("cheese");
+    }
+}
+
+
+
+Singleton for Multithreading
+
+class ThreadSafeSingleton {
+    private static ThreadSafeSingleton instance;
+
+    // 1. Private constructor
+    private ThreadSafeSingleton() {
+        System.out.println("Singleton Instance Created!");
+    }
+
+    // 2. Synchronized method for thread safety
+    public static synchronized ThreadSafeSingleton getInstance() {
+        if (instance == null) {
+            instance = new ThreadSafeSingleton();
+        }
+        return instance;
+    }
+}
+
+public class SingletonMain {
+    public static void main(String[] args) {
+        // Creating two threads to test thread safety
+        Thread t1 = new Thread(() -> ThreadSafeSingleton.getInstance());
+        Thread t2 = new Thread(() -> ThreadSafeSingleton.getInstance());
+
+        t1.start();
+        t2.start();
+        // You will only see "Singleton Instance Created!" printed once.
+    }
+}
+
+
+Lab 3: Abstract Factory Pattern (Mobile Phone)
+
+// 1. Interfaces for functionalities
+interface Camera { void takePhoto(); }
+interface VideoRecorder { void recordVideo(); }
+
+// 2. Concrete products for Apple
+class AppleCamera implements Camera {
+    public void takePhoto() { System.out.println("Taking photo with Apple iPhone"); }
+}
+class AppleRecorder implements VideoRecorder {
+    public void recordVideo() { System.out.println("Recording video with Apple iPhone"); }
+}
+
+// 3. Concrete products for Samsung
+class SamsungCamera implements Camera {
+    public void takePhoto() { System.out.println("Taking photo with Samsung Galaxy"); }
+}
+class SamsungRecorder implements VideoRecorder {
+    public void recordVideo() { System.out.println("Recording video with Samsung Galaxy"); }
+}
+
+// 4. Abstract Factory
+interface MobileFactory {
+    Camera createCamera();
+    VideoRecorder createRecorder();
+}
+
+// 5. Concrete Factories
+class AppleFactory implements MobileFactory {
+    public Camera createCamera() { return new AppleCamera(); }
+    public VideoRecorder createRecorder() { return new AppleRecorder(); }
+}
+
+class SamsungFactory implements MobileFactory {
+    public Camera createCamera() { return new SamsungCamera(); }
+    public VideoRecorder createRecorder() { return new SamsungRecorder(); }
+}
+
+public class MobileMain {
+    public static void main(String[] args) {
+        MobileFactory myFactory = new AppleFactory(); // Swap with SamsungFactory to test
+        
+        Camera cam = myFactory.createCamera();
+        VideoRecorder rec = myFactory.createRecorder();
+        
+        cam.takePhoto();
+        rec.recordVideo();
+    }
+}
+
+
+Extra Practice 1: Abstract Factory (Cars & Specifications)
+
+// 1. Interfaces
+interface Car { void drive(); }
+interface Specification { void displaySpecs(); }
+
+// 2. Concrete Products (North America)
+class NACar implements Car {
+    public void drive() { System.out.println("Driving a North American Car"); }
+}
+class NASpecs implements Specification {
+    public void displaySpecs() { System.out.println("Specs: Left-hand drive, MPH speedometer"); }
+}
+
+// 3. Concrete Products (Europe)
+class EUCar implements Car {
+    public void drive() { System.out.println("Driving a European Car"); }
+}
+class EUSpecs implements Specification {
+    public void displaySpecs() { System.out.println("Specs: Right-hand drive, KM/H speedometer"); }
+}
+
+// 4. Abstract Factory
+interface CarFactory {
+    Car createCar();
+    Specification createSpecs();
+}
+
+// 5. Concrete Factories
+class NAFactory implements CarFactory {
+    public Car createCar() { return new NACar(); }
+    public Specification createSpecs() { return new NASpecs(); }
+}
+
+class EUFactory implements CarFactory {
+    public Car createCar() { return new EUCar(); }
+    public Specification createSpecs() { return new EUSpecs(); }
+}
+
+public class CarMain {
+    public static void main(String[] args) {
+        CarFactory factory = new EUFactory(); 
+        
+        Car myCar = factory.createCar();
+        Specification mySpecs = factory.createSpecs();
+        
+        myCar.drive();
+        mySpecs.displaySpecs();
+    }
+}
+
+
+Extra Practice 2: Singleton (LoggerService)
+
+class LoggerService {
+    // 1. Private static variable
+    private static LoggerService instance;
+
+    // 2. Private constructor prevents others from making new instances
+    private LoggerService() {
+        System.out.println("LoggerService initialized.");
+    }
+
+    // 3. Public static method to get the single instance
+    public static LoggerService getInstance() {
+        if (instance == null) {
+            instance = new LoggerService();
+        }
+        return instance;
+    }
+
+    public void log(String message) {
+        System.out.println("[LOG]: " + message);
+    }
+}
+
+public class LoggerMain {
+    public static void main(String[] args) {
+        LoggerService logger1 = LoggerService.getInstance();
+        logger1.log("System started.");
+
+        LoggerService logger2 = LoggerService.getInstance();
+        logger2.log("Loading data.");
+
+        // Checking if both are the exact same object
+        System.out.println("Are logger1 and logger2 the same instance? " + (logger1 == logger2));
+    }
+}
+
+
+ASSIGNMENT 2
+
+Lab 1: I/O Decorator (Uppercase to Lowercase)
+
+import java.io.*;
+
+class LowerCaseInputStream extends FilterInputStream {
+    public LowerCaseInputStream(InputStream in) { super(in); }
+
+    @Override
+    public int read() throws IOException {
+        int c = super.read();
+        return (c == -1 ? c : Character.toLowerCase((char) c));
+    }
+}
+
+public class DecoratorMain {
+    public static void main(String[] args) throws IOException {
+        String text = "HELLO WORLD!";
+        InputStream in = new LowerCaseInputStream(new ByteArrayInputStream(text.getBytes()));
+        
+        int c;
+        while ((c = in.read()) >= 0) {
+            System.out.print((char) c);
+        }
+        // Output: hello world!
+    }
+}
+
+
+Lab 2: Adapter Pattern (Enumeration to Iterator)
+
+import java.util.*;
+
+// The Adapter
+class EnumerationIterator<T> implements Iterator<T> {
+    private Enumeration<T> enumeration;
+
+    public EnumerationIterator(Enumeration<T> enumeration) {
+        this.enumeration = enumeration;
+    }
+
+    public boolean hasNext() { return enumeration.hasMoreElements(); }
+    public T next() { return enumeration.nextElement(); }
+}
+
+public class AdapterMain {
+    public static void main(String[] args) {
+        Vector<String> days = new Vector<>(Arrays.asList("Mon", "Tue", "Wed"));
+        
+        // Wrap the Enumeration in our Adapter
+        Iterator<String> iterator = new EnumerationIterator<>(days.elements());
+        
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+    }
+}
+
+
+Lab 3: Bridge Pattern (Produce and Assemble Vehicles)
+
+// Implementor
+interface Workshop { void work(); }
+
+class Produce implements Workshop {
+    public void work() { System.out.print("Produced "); }
+}
+class Assemble implements Workshop {
+    public void work() { System.out.println("and Assembled."); }
+}
+
+// Abstraction
+abstract class Vehicle {
+    protected Workshop work1, work2;
+    protected Vehicle(Workshop w1, Workshop w2) { work1 = w1; work2 = w2; }
+    abstract void manufacture();
+}
+
+class Car extends Vehicle {
+    public Car(Workshop w1, Workshop w2) { super(w1, w2); }
+    void manufacture() {
+        System.out.print("Car: ");
+        work1.work(); work2.work();
+    }
+}
+
+public class BridgeMain {
+    public static void main(String[] args) {
+        Vehicle myCar = new Car(new Produce(), new Assemble());
+        myCar.manufacture(); 
+        // Output: Car: Produced and Assembled.
+    }
+}
+
+
+Extra Practice 1: Adapter (Heart Model to Beat Model)
+
+// Target Interface
+interface BeatModel { void getBPM(); }
+
+// Adaptee Interface & Implementation
+interface HeartModel { void getHeartRate(); }
+class MyHeart implements HeartModel {
+    public void getHeartRate() { System.out.println("Heart rate is 72 BPM"); }
+}
+
+// Adapter
+class HeartAdapter implements BeatModel {
+    private HeartModel heart;
+    public HeartAdapter(HeartModel heart) { this.heart = heart; }
+    
+    public void getBPM() { 
+        heart.getHeartRate(); // Translates Beat request to Heart method
+    }
+}
+
+public class HeartAdapterMain {
+    public static void main(String[] args) {
+        HeartModel realHeart = new MyHeart();
+        BeatModel adaptedHeart = new HeartAdapter(realHeart);
+        
+        adaptedHeart.getBPM();
+    }
+}
+
+
+Extra Practice 2: Proxy Pattern (Image Loading)
+
+// Subject
+interface Image { void display(); }
+
+// Real Subject (Heavy to load)
+class RealImage implements Image {
+    private String filename;
+    public RealImage(String filename) {
+        this.filename = filename;
+        System.out.println("Loading from disk: " + filename);
+    }
+    public void display() { System.out.println("Displaying: " + filename); }
+}
+
+// Proxy (Lightweight)
+class ProxyImage implements Image {
+    private String filename;
+    private RealImage realImage;
+
+    public ProxyImage(String filename) { this.filename = filename; }
+
+    public void display() {
+        if (realImage == null) {
+            realImage = new RealImage(filename); // Lazy initialization
+        }
+        realImage.display();
+    }
+}
+
+public class ProxyMain {
+    public static void main(String[] args) {
+        Image img = new ProxyImage("photo.jpg");
+        System.out.println("Image object created, but not loaded yet.");
+        
+        img.display(); // Loads and displays
+        img.display(); // Only displays (already loaded)
+    }
+}
+
+
+ASSIGNMENT 3
+
+Lab 1: Observer Pattern (Weather Station)
+
+import java.util.Observable;
+import java.util.Observer;
+
+// 1. The Subject (Observable)
+class WeatherData extends Observable {
+    private float temperature, humidity, pressure;
+
+    public void measurementsChanged() {
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setMeasurements(float temp, float humidity, float pressure) {
+        this.temperature = temp;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        measurementsChanged();
+    }
+
+    public float getTemperature() { return temperature; }
+    public float getHumidity() { return humidity; }
+    public float getPressure() { return pressure; }
+}
+
+// 2. The Observer
+class CurrentConditionsDisplay implements Observer {
+    public void update(Observable obs, Object arg) {
+        if (obs instanceof WeatherData) {
+            WeatherData w = (WeatherData) obs;
+            System.out.println("Current conditions: " + w.getTemperature() + 
+                               "F degrees and " + w.getHumidity() + "% humidity");
+        }
+    }
+}
+
+public class ObserverMain {
+    public static void main(String[] args) {
+        WeatherData weatherData = new WeatherData();
+        CurrentConditionsDisplay display = new CurrentConditionsDisplay();
+        
+        weatherData.addObserver(display);
+        weatherData.setMeasurements(80, 65, 30.4f);
+    }
+}
+
+
+Lab 2: Command Pattern with Undo (Ceiling Fan)
+
+// 1. Command Interface
+interface Command {
+    void execute();
+    void undo();
+}
+
+// 2. Receiver
+class CeilingFan {
+    int speed = 0;
+    void high() { speed = 3; System.out.println("Fan is HIGH"); }
+    void off() { speed = 0; System.out.println("Fan is OFF"); }
+}
+
+// 3. Concrete Command
+class FanHighCommand implements Command {
+    CeilingFan fan;
+    int prevSpeed;
+
+    public FanHighCommand(CeilingFan fan) { this.fan = fan; }
+
+    public void execute() {
+        prevSpeed = fan.speed;
+        fan.high();
+    }
+
+    public void undo() {
+        if (prevSpeed == 0) fan.off();
+        else fan.high();
+    }
+}
+
+// 4. Invoker
+public class FanCommandMain {
+    public static void main(String[] args) {
+        CeilingFan fan = new CeilingFan();
+        Command fanHigh = new FanHighCommand(fan);
+
+        fanHigh.execute(); // Turns fan High
+        fanHigh.undo();    // Reverts to Off
+    }
+}
+
+
+Lab 3: Iterator Pattern (Menu Design)
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Arrays;
+
+class MenuItem {
+    String name;
+    public MenuItem(String name) { this.name = name; }
+    public String toString() { return name; }
+}
+
+// Menu Interface
+interface Menu { Iterator<MenuItem> createIterator(); }
+
+// Concrete Menu
+class BreakfastMenu implements Menu {
+    List<MenuItem> items = Arrays.asList(new MenuItem("Pancakes"), new MenuItem("Waffles"));
+    
+    public Iterator<MenuItem> createIterator() {
+        return items.iterator();
+    }
+}
+
+public class IteratorMain {
+    public static void main(String[] args) {
+        Menu breakfast = new BreakfastMenu();
+        Iterator<MenuItem> iterator = breakfast.createIterator();
+        
+        System.out.println("--- MENU ---");
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+    }
+}
+
+
+Extra Practice 1: State Pattern (Gumball Machine)
+
+// 1. State Interface
+interface State {
+    void insertQuarter();
+    void ejectQuarter();
+    void turnCrank();
+    void dispense();
+}
+
+// 2. Context Object
+class GumballMachine {
+    State noQuarter, hasQuarter, currentState;
+
+    public GumballMachine() {
+        noQuarter = new NoQuarterState(this);
+        hasQuarter = new HasQuarterState(this);
+        currentState = noQuarter;
+    }
+
+    void setState(State state) { this.currentState = state; }
+    
+    public void insertQuarter() { currentState.insertQuarter(); }
+    public void ejectQuarter() { currentState.ejectQuarter(); }
+    public void turnCrank() { 
+        currentState.turnCrank(); 
+        currentState.dispense(); 
+    }
+}
+
+// 3. Concrete States
+class NoQuarterState implements State {
+    GumballMachine gm;
+    public NoQuarterState(GumballMachine gm) { this.gm = gm; }
+    public void insertQuarter() { System.out.println("Quarter inserted."); gm.setState(gm.hasQuarter); }
+    public void ejectQuarter() { System.out.println("You haven't inserted a quarter."); }
+    public void turnCrank() { System.out.println("You turned, but there's no quarter."); }
+    public void dispense() { System.out.println("You need to pay first."); }
+}
+
+class HasQuarterState implements State {
+    GumballMachine gm;
+    public HasQuarterState(GumballMachine gm) { this.gm = gm; }
+    public void insertQuarter() { System.out.println("You can't insert another quarter."); }
+    public void ejectQuarter() { System.out.println("Quarter returned."); gm.setState(gm.noQuarter); }
+    public void turnCrank() { System.out.println("You turned..."); }
+    public void dispense() { System.out.println("A gumball comes rolling out!"); gm.setState(gm.noQuarter); }
+}
+
+public class StateMain {
+    public static void main(String[] args) {
+        GumballMachine machine = new GumballMachine();
+        machine.insertQuarter();
+        machine.turnCrank();
+    }
+}
+
+
+Extra Practice 2: Command Pattern (Remote Control)
+
+// 1. Command Interface
+interface SimpleCommand { void execute(); }
+
+// 2. Receiver
+class Light {
+    public void on() { System.out.println("Light is ON"); }
+}
+
+// 3. Concrete Command
+class LightOnCommand implements SimpleCommand {
+    Light light;
+    public LightOnCommand(Light light) { this.light = light; }
+    public void execute() { light.on(); }
+}
+
+// 4. Invoker
+class SimpleRemoteControl {
+    SimpleCommand slot;
+    public void setCommand(SimpleCommand command) { slot = command; }
+    public void buttonWasPressed() { slot.execute(); }
+}
+
+public class RemoteMain {
+    public static void main(String[] args) {
+        SimpleRemoteControl remote = new SimpleRemoteControl();
+        Light light = new Light();
+        LightOnCommand lightOn = new LightOnCommand(light);
+
+        remote.setCommand(lightOn);
+        remote.buttonWasPressed(); // Output: Light is ON
+    }
+}
+
+
+
+ASSIGNMENT 4
+
+#1 HR APPLICATION
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+
+}
+
+
+#Employee.java
+package com.example.demo;
+
+public class Employee {
+
+    private int id;
+    private String name;
+    private String designation;
+    private String department;
+    private double salary;
+
+    public Employee(int id, String name, String designation,
+                    String department, double salary) {
+        this.id = id;
+        this.name = name;
+        this.designation = designation;
+        this.department = department;
+        this.salary = salary;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+}
+
+
+#HRController.java
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/employees")
+public class HRController {
+
+    List<Employee> employees = new ArrayList<>();
+
+    @PostMapping
+    public String addEmployee(@RequestBody Employee e) {
+        employees.add(e);
+        return "Employee added successfully";
+    }
+
+    @GetMapping
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    @GetMapping("/{id}")
+    public Employee getEmployee(@PathVariable int id) {
+
+        for (Employee e : employees) {
+            if (e.getId() == id) {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteEmployee(@PathVariable int id) {
+
+        for (Employee e : employees) {
+            if (e.getId() == id) {
+                employees.remove(e);
+                return "Employee deleted successfully";
+            }
+        }
+
+        return "Employee not found";
+    }
+}
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+
+#2 TASK MANAGEMENT
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+#Task.java
+package com.example.demo;
+
+public class Task {
+
+    private int id;
+    private String name;
+    private String category;
+    private String dueDate;
+
+    public Task() {
+    }
+
+    public Task(int id, String name, String category, String dueDate) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.dueDate = dueDate;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+}
+
+#TaskController.java
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/tasks")
+public class TaskController {
+
+    private final List<Task> tasks = new ArrayList<>();
+
+    @PostMapping
+    public String addTask(@RequestBody Task task) {
+        tasks.add(task);
+        return "Task added successfully";
+    }
+
+    @GetMapping
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    @GetMapping("/{id}")
+    public Task getTask(@PathVariable int id) {
+
+        for (Task task : tasks) {
+            if (task.getId() == id) {
+                return task;
+            }
+        }
+
+        return null;
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteTask(@PathVariable int id) {
+
+        for (Task task : tasks) {
+            if (task.getId() == id) {
+                tasks.remove(task);
+                return "Task deleted successfully";
+            }
+        }
+
+        return "Task not found";
+    }
+}
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+
+#3 LOGIN MODULE
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+#User.java
+package com.example.demo;
+
+public class User {
+
+    private String name;
+    private String email;
+    private String username;
+
+    public User() {
+    }
+
+    public User(String name, String email, String username) {
+        this.name = name;
+        this.email = email;
+        this.username = username;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+}
+
+#UserController.java
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    List<User> users = new ArrayList<>();
+
+    @PostMapping("/register")
+    public String register(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String username) {
+
+        // Validation
+        if (name.isEmpty()) {
+            return "Name cannot be empty";
+        }
+
+        if (email.isEmpty() || !email.contains("@")) {
+            return "Invalid email";
+        }
+
+        if (username.isEmpty()) {
+            return "Username cannot be empty";
+        }
+
+        // Check username already exists
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                return "Username already exists";
+            }
+        }
+
+        User user = new User(name, email, username);
+        users.add(user);
+
+        return "Registration successful";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username) {
+
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                return "Login successful";
+            }
+        }
+
+        return "User not found";
+    }
+
+    @GetMapping
+    public List<User> getUsers() {
+        return users;
+    }
+}
+
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+#4 Employee details
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+#Employee.java
+package com.example.demo;
+
+public class Employee {
+
+    private int eno;
+    private String ename;
+    private String designation;
+    private String deptName;
+    private double salary;
+
+    public Employee() {
+    }
+
+    public Employee(int eno, String ename, String designation,
+                    String deptName, double salary) {
+        this.eno = eno;
+        this.ename = ename;
+        this.designation = designation;
+        this.deptName = deptName;
+        this.salary = salary;
+    }
+
+    public int getEno() {
+        return eno;
+    }
+
+    public void setEno(int eno) {
+        this.eno = eno;
+    }
+
+    public String getEname() {
+        return ename;
+    }
+
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
+
+    public String getDesignation() {
+        return designation;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(double salary) {
+        this.salary = salary;
+    }
+}
+
+# EmployeeController.java
+
+package com.example.demo;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/employees")
+public class EmployeeController {
+
+    @PostMapping("/save")
+    public String saveEmployee(
+            @RequestParam int eno,
+            @RequestParam String ename,
+            @RequestParam String designation,
+            @RequestParam String deptName,
+            @RequestParam double salary) {
+
+        try {
+
+            FileWriter file = new FileWriter("employees.txt", true);
+
+            file.write(
+                "Employee No: " + eno +
+                ", Name: " + ename +
+                ", Designation: " + designation +
+                ", Department: " + deptName +
+                ", Salary: " + salary +
+                "\n"
+            );
+
+            file.close();
+
+            return "Employee details saved successfully";
+
+        } catch (IOException e) {
+
+            return "Error while saving employee";
+        }
+    }
+}
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+#5 SIMPLE ERP SYSTEM
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+# Inventory.java
+
+package com.example.demo;
+
+public class Inventory {
+
+    private int id;
+    private String product;
+    private int quantity;
+
+    public Inventory() {
+    }
+
+    public Inventory(int id, String product, int quantity) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+}
+
+#Sales.java
+package com.example.demo;
+
+public class Sales {
+
+    private int id;
+    private String product;
+    private int quantity;
+    private double amount;
+
+    public Sales() {
+    }
+
+    public Sales(int id, String product, int quantity, double amount) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+        this.amount = amount;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+}
+
+#ERPController.java
+Paste:
+
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/erp")
+public class ERPController {
+
+    List<Inventory> inventory = new ArrayList<>();
+    List<Sales> sales = new ArrayList<>();
+
+    // Add inventory
+    @PostMapping("/inventory")
+    public String addInventory(
+            @RequestParam int id,
+            @RequestParam String product,
+            @RequestParam int quantity) {
+
+        Inventory item = new Inventory(id, product, quantity);
+        inventory.add(item);
+
+        return "Inventory added successfully";
+    }
+
+    // View inventory
+    @GetMapping("/inventory")
+    public List<Inventory> getInventory() {
+        return inventory;
+    }
+
+    // Add sale
+    @PostMapping("/sales")
+    public String addSale(
+            @RequestParam int id,
+            @RequestParam String product,
+            @RequestParam int quantity,
+            @RequestParam double amount) {
+
+        Sales sale = new Sales(id, product, quantity, amount);
+        sales.add(sale);
+
+        return "Sale added successfully";
+    }
+
+    // View sales
+    @GetMapping("/sales")
+    public List<Sales> getSales() {
+        return sales;
+    }
+
+    // Calculate total sales
+    @GetMapping("/finance")
+    public String getFinance() {
+
+        double total = 0;
+
+        for (Sales sale : sales) {
+            total = total + sale.getAmount();
+        }
+
+        return "Total Sales Amount = " + total;
+    }
+}
+
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+#Simple Inventory System
+
+#DemoApplication.java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+
+#Product.java
+Paste:
+
+package com.example.demo;
+
+public class Product {
+
+    private int id;
+    private String name;
+    private int quantity;
+    private double price;
+
+    public Product() {
+    }
+
+    public Product(int id, String name, int quantity, double price) {
+        this.id = id;
+        this.name = name;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}
+
+#InventoryController.java
+Paste:
+
+package com.example.demo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/inventory")
+public class InventoryController {
+
+    List<Product> products = new ArrayList<>();
+
+    // Add product
+    @PostMapping
+    public String addProduct(
+            @RequestParam int id,
+            @RequestParam String name,
+            @RequestParam int quantity,
+            @RequestParam double price) {
+
+        Product product = new Product(id, name, quantity, price);
+        products.add(product);
+
+        return "Product added successfully";
+    }
+
+    // View all products
+    @GetMapping
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    // Find product by ID
+    @GetMapping("/{id}")
+    public Product getProduct(@PathVariable int id) {
+
+        for (Product product : products) {
+            if (product.getId() == id) {
+                return product;
+            }
+        }
+
+        return null;
+    }
+
+    // Update quantity
+    @PutMapping("/{id}")
+    public String updateQuantity(
+            @PathVariable int id,
+            @RequestParam int quantity) {
+
+        for (Product product : products) {
+
+            if (product.getId() == id) {
+                product.setQuantity(quantity);
+                return "Quantity updated successfully";
+            }
+        }
+
+        return "Product not found";
+    }
+
+    // Delete product
+    @DeleteMapping("/{id}")
+    public String deleteProduct(@PathVariable int id) {
+
+        for (Product product : products) {
+
+            if (product.getId() == id) {
+                products.remove(product);
+                return "Product deleted successfully";
+            }
+        }
+
+        return "Product not found";
+    }
+}
+
+#pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+
+
+
+
+
+
+
